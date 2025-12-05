@@ -7,14 +7,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useData } from '@/contexts/DataContext';
+import { useAuth } from '@/hooks/useAuth';
+import { useData } from '@/hooks/useData';
 import { toast } from 'sonner';
 
 const CreatePost = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const { addRequest, addOffer } = useData();
+  const [submitting, setSubmitting] = useState(false);
   
   const [requestForm, setRequestForm] = useState({
     title: '',
@@ -31,33 +32,57 @@ const CreatePost = () => {
     availability: '',
   });
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
   if (!user) {
     return <Navigate to="/" replace />;
   }
 
-  const handleRequestSubmit = (e: React.FormEvent) => {
+  const handleRequestSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addRequest({
+    setSubmitting(true);
+    
+    const { error } = await addRequest({
       ...requestForm,
-      userId: user.id,
-      userName: user.name,
-      location: user.location,
+      user_id: user.id,
+      location: profile?.location || '',
       status: 'open',
     });
-    toast.success('Request posted successfully!');
-    navigate('/dashboard');
+    
+    setSubmitting(false);
+    
+    if (error) {
+      toast.error('Failed to post request');
+    } else {
+      toast.success('Request posted successfully!');
+      navigate('/dashboard');
+    }
   };
 
-  const handleOfferSubmit = (e: React.FormEvent) => {
+  const handleOfferSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addOffer({
+    setSubmitting(true);
+    
+    const { error } = await addOffer({
       ...offerForm,
-      userId: user.id,
-      userName: user.name,
-      location: user.location,
+      user_id: user.id,
+      location: profile?.location || '',
     });
-    toast.success('Offer posted successfully!');
-    navigate('/dashboard');
+    
+    setSubmitting(false);
+    
+    if (error) {
+      toast.error('Failed to post offer');
+    } else {
+      toast.success('Offer posted successfully!');
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -122,7 +147,9 @@ const CreatePost = () => {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full">Post Request</Button>
+                  <Button type="submit" className="w-full" disabled={submitting}>
+                    {submitting ? 'Posting...' : 'Post Request'}
+                  </Button>
                 </form>
               </TabsContent>
               
@@ -179,7 +206,9 @@ const CreatePost = () => {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full">Post Offer</Button>
+                  <Button type="submit" className="w-full" disabled={submitting}>
+                    {submitting ? 'Posting...' : 'Post Offer'}
+                  </Button>
                 </form>
               </TabsContent>
             </Tabs>

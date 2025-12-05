@@ -1,21 +1,36 @@
+import { useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, CheckCircle, XCircle, Bell } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useData } from '@/contexts/DataContext';
+import { useAuth } from '@/hooks/useAuth';
+import { useData } from '@/hooks/useData';
 
 const Notifications = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { notifications, markNotificationRead } = useData();
+  const { user, loading: authLoading } = useAuth();
+  const { notifications, markNotificationRead, fetchNotifications } = useData();
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications(user.id);
+    }
+  }, [user]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/" replace />;
   }
 
-  const userNotifications = notifications.filter(n => n.userId === user.id);
+  const userNotifications = notifications.filter(n => n.user_id === user.id);
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -26,6 +41,10 @@ const Notifications = () => {
       default:
         return <Bell className="h-5 w-5 text-primary" />;
     }
+  };
+
+  const handleNotificationClick = async (id: string) => {
+    await markNotificationRead(id);
   };
 
   return (
@@ -44,7 +63,7 @@ const Notifications = () => {
               <Card 
                 key={notification.id} 
                 className={`border-border bg-card cursor-pointer transition-all ${!notification.read ? 'ring-2 ring-primary/20' : ''}`}
-                onClick={() => markNotificationRead(notification.id)}
+                onClick={() => handleNotificationClick(notification.id)}
               >
                 <CardContent className="flex items-start gap-4 p-4">
                   {getIcon(notification.type)}
@@ -57,7 +76,7 @@ const Notifications = () => {
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
                     <p className="text-xs text-muted-foreground mt-2">
-                      {new Date(notification.createdAt).toLocaleDateString()}
+                      {new Date(notification.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </CardContent>
