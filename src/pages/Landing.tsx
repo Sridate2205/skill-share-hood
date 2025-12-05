@@ -1,10 +1,18 @@
 import { AuthForms } from '@/components/auth/AuthForms';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { Users, HandHeart, Shield, MapPin } from 'lucide-react';
 
 const Landing = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   if (user) {
     return <Navigate to="/dashboard" replace />;

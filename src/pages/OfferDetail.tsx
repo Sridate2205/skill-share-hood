@@ -1,22 +1,62 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, MapPin, User, Clock, Calendar, Tag } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useData } from '@/contexts/DataContext';
+import { useAuth } from '@/hooks/useAuth';
+import { useData } from '@/hooks/useData';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+interface OfferWithProfile {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  rate: string;
+  location: string;
+  category: string;
+  availability: string;
+  created_at: string;
+  profiles: { name: string } | null;
+}
 
 const OfferDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { offers, addNotification } = useData();
+  const { user, profile, loading: authLoading } = useAuth();
+  const { addNotification } = useData();
+  const [offer, setOffer] = useState<OfferWithProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOffer = async () => {
+      const { data, error } = await supabase
+        .from('skill_offers')
+        .select('*, profiles(name)')
+        .eq('id', id)
+        .single();
+      
+      if (!error && data) {
+        setOffer(data);
+      }
+      setLoading(false);
+    };
+
+    if (id) fetchOffer();
+  }, [id]);
+
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/" replace />;
   }
-
-  const offer = offers.find(o => o.id === id);
 
   if (!offer) {
     return (
@@ -29,16 +69,21 @@ const OfferDetail = () => {
     );
   }
 
-  const handleBook = () => {
-    addNotification({
-      userId: offer.userId,
+  const handleBook = async () => {
+    const { error } = await addNotification({
+      user_id: offer.user_id,
       type: 'new_request',
       title: 'New Booking Request',
-      message: `${user.name} wants to book your skill: "${offer.title}"`,
+      message: `${profile?.name || user.email} wants to book your skill: "${offer.title}"`,
       read: false,
     });
-    toast.success('Your booking request has been sent!');
-    navigate('/dashboard');
+    
+    if (error) {
+      toast.error('Failed to send booking request');
+    } else {
+      toast.success('Your booking request has been sent!');
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -72,7 +117,7 @@ const OfferDetail = () => {
                 <User className="h-5 w-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Offered by</p>
-                  <p className="font-medium text-foreground">{offer.userName}</p>
+                  <p className="font-medium text-foreground">{offer.profiles?.name || 'Unknown'}</p>
                 </div>
               </div>
               
@@ -101,7 +146,7 @@ const OfferDetail = () => {
               </div>
             </div>
 
-            {offer.userId !== user.id && (
+            {offer.user_id !== user.id && (
               <Button className="w-full" onClick={handleBook}>
                 Book This Skill
               </Button>

@@ -1,11 +1,17 @@
 import { MapPin, User, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { SkillOffer } from '@/types';
 import { useNavigate } from 'react-router-dom';
 
 interface OfferCardProps {
-  offer: SkillOffer;
+  offer: {
+    id: string;
+    title: string;
+    description: string;
+    rate: string;
+    location: string;
+    profiles?: { name: string } | null;
+  };
 }
 
 export const OfferCard = ({ offer }: OfferCardProps) => {
@@ -24,7 +30,7 @@ export const OfferCard = ({ offer }: OfferCardProps) => {
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <User className="h-4 w-4" />
-          <span>Posted by {offer.userName}</span>
+          <span>Posted by {offer.profiles?.name || 'Unknown'}</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" />

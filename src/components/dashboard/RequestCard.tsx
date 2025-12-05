@@ -1,11 +1,17 @@
 import { MapPin, User, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { SkillRequest } from '@/types';
 import { useNavigate } from 'react-router-dom';
 
 interface RequestCardProps {
-  request: SkillRequest;
+  request: {
+    id: string;
+    title: string;
+    description: string;
+    compensation: string;
+    location: string;
+    profiles?: { name: string } | null;
+  };
 }
 
 export const RequestCard = ({ request }: RequestCardProps) => {
@@ -24,7 +30,7 @@ export const RequestCard = ({ request }: RequestCardProps) => {
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <User className="h-4 w-4" />
-          <span>Posted by {request.userName}</span>
+          <span>Posted by {request.profiles?.name || 'Unknown'}</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" />

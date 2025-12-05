@@ -14,7 +14,141 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          id: string
+          location: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          location?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          location?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      skill_offers: {
+        Row: {
+          availability: string
+          category: string
+          created_at: string
+          description: string
+          id: string
+          location: string
+          rate: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          availability: string
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          location: string
+          rate: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          availability?: string
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          location?: string
+          rate?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      skill_requests: {
+        Row: {
+          category: string
+          compensation: string
+          created_at: string
+          description: string
+          id: string
+          location: string
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          compensation: string
+          created_at?: string
+          description: string
+          id?: string
+          location: string
+          status?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          compensation?: string
+          created_at?: string
+          description?: string
+          id?: string
+          location?: string
+          status?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

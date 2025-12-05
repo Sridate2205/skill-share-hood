@@ -3,14 +3,22 @@ import { Header } from '@/components/dashboard/Header';
 import { SearchBar } from '@/components/dashboard/SearchBar';
 import { RequestCard } from '@/components/dashboard/RequestCard';
 import { OfferCard } from '@/components/dashboard/OfferCard';
-import { useData } from '@/contexts/DataContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useData } from '@/hooks/useData';
+import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 
 const Dashboard = () => {
-  const { user } = useAuth();
-  const { requests, offers } = useData();
+  const { user, loading: authLoading } = useAuth();
+  const { requests, offers, loading: dataLoading } = useData();
   const [searchQuery, setSearchQuery] = useState('');
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -35,35 +43,39 @@ const Dashboard = () => {
           <SearchBar value={searchQuery} onChange={setSearchQuery} />
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Neighbourhood Requests Section */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground mb-4">Neighbourhood Requests</h2>
-            <div className="space-y-4">
-              {filteredRequests.length > 0 ? (
-                filteredRequests.map(request => (
-                  <RequestCard key={request.id} request={request} />
-                ))
-              ) : (
-                <p className="text-muted-foreground text-center py-8">No requests yet. Be the first to post!</p>
-              )}
-            </div>
-          </section>
+        {dataLoading ? (
+          <p className="text-center text-muted-foreground">Loading posts...</p>
+        ) : (
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Neighbourhood Requests Section */}
+            <section>
+              <h2 className="text-xl font-semibold text-foreground mb-4">Neighbourhood Requests</h2>
+              <div className="space-y-4">
+                {filteredRequests.length > 0 ? (
+                  filteredRequests.map(request => (
+                    <RequestCard key={request.id} request={request} />
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">No requests yet. Be the first to post!</p>
+                )}
+              </div>
+            </section>
 
-          {/* Skills Offered Section */}
-          <section>
-            <h2 className="text-xl font-semibold text-foreground mb-4">Skills Offered Nearby</h2>
-            <div className="space-y-4">
-              {filteredOffers.length > 0 ? (
-                filteredOffers.map(offer => (
-                  <OfferCard key={offer.id} offer={offer} />
-                ))
-              ) : (
-                <p className="text-muted-foreground text-center py-8">No offers yet. Share your skills!</p>
-              )}
-            </div>
-          </section>
-        </div>
+            {/* Skills Offered Section */}
+            <section>
+              <h2 className="text-xl font-semibold text-foreground mb-4">Skills Offered Nearby</h2>
+              <div className="space-y-4">
+                {filteredOffers.length > 0 ? (
+                  filteredOffers.map(offer => (
+                    <OfferCard key={offer.id} offer={offer} />
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">No offers yet. Share your skills!</p>
+                )}
+              </div>
+            </section>
+          </div>
+        )}
       </main>
     </div>
   );

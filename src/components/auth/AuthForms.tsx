@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 export const AuthForms = () => {
@@ -15,22 +15,31 @@ export const AuthForms = () => {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupName, setSignupName] = useState('');
   const [signupLocation, setSignupLocation] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (login(loginEmail, loginPassword)) {
-      toast.success('Welcome back!');
+    setLoading(true);
+    const { error } = await login(loginEmail, loginPassword);
+    setLoading(false);
+    
+    if (error) {
+      toast.error(error.message);
     } else {
-      toast.error('Invalid email or password');
+      toast.success('Welcome back!');
     }
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (signup(signupEmail, signupPassword, signupName, signupLocation)) {
-      toast.success('Account created successfully!');
+    setLoading(true);
+    const { error } = await signup(signupEmail, signupPassword, signupName, signupLocation);
+    setLoading(false);
+    
+    if (error) {
+      toast.error(error.message);
     } else {
-      toast.error('Email already exists');
+      toast.success('Account created successfully!');
     }
   };
 
@@ -70,7 +79,9 @@ export const AuthForms = () => {
                   required
                 />
               </div>
-              <Button type="submit" className="w-full">Login</Button>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Loading...' : 'Login'}
+              </Button>
             </form>
           </TabsContent>
           
@@ -105,8 +116,9 @@ export const AuthForms = () => {
                   type="password"
                   value={signupPassword}
                   onChange={(e) => setSignupPassword(e.target.value)}
-                  placeholder="Create a password"
+                  placeholder="Create a password (min 6 chars)"
                   required
+                  minLength={6}
                 />
               </div>
               <div className="space-y-2">
@@ -120,7 +132,9 @@ export const AuthForms = () => {
                   required
                 />
               </div>
-              <Button type="submit" className="w-full">Create Account</Button>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Creating...' : 'Create Account'}
+              </Button>
             </form>
           </TabsContent>
         </Tabs>
