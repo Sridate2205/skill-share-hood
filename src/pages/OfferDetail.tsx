@@ -33,12 +33,21 @@ const OfferDetail = () => {
     const fetchOffer = async () => {
       const { data, error } = await supabase
         .from('skill_offers')
-        .select('*, profiles(name)')
+        .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
       
       if (!error && data) {
-        setOffer(data);
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('user_id', data.user_id)
+          .maybeSingle();
+        
+        setOffer({
+          ...data,
+          profiles: profileData || null
+        });
       }
       setLoading(false);
     };

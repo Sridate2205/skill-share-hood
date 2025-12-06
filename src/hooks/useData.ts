@@ -44,24 +44,46 @@ export const useData = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchRequests = async () => {
-    const { data, error } = await supabase
+    const { data: requestsData, error: requestsError } = await supabase
       .from('skill_requests')
-      .select('*, profiles(name)')
+      .select('*')
       .order('created_at', { ascending: false });
     
-    if (!error && data) {
-      setRequests(data);
+    if (!requestsError && requestsData) {
+      const userIds = [...new Set(requestsData.map(r => r.user_id))];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('user_id, name')
+        .in('user_id', userIds);
+      
+      const profilesMap = new Map(profilesData?.map(p => [p.user_id, { name: p.name }]) || []);
+      const requestsWithProfiles = requestsData.map(r => ({
+        ...r,
+        profiles: profilesMap.get(r.user_id) || null
+      }));
+      setRequests(requestsWithProfiles);
     }
   };
 
   const fetchOffers = async () => {
-    const { data, error } = await supabase
+    const { data: offersData, error: offersError } = await supabase
       .from('skill_offers')
-      .select('*, profiles(name)')
+      .select('*')
       .order('created_at', { ascending: false });
     
-    if (!error && data) {
-      setOffers(data);
+    if (!offersError && offersData) {
+      const userIds = [...new Set(offersData.map(o => o.user_id))];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('user_id, name')
+        .in('user_id', userIds);
+      
+      const profilesMap = new Map(profilesData?.map(p => [p.user_id, { name: p.name }]) || []);
+      const offersWithProfiles = offersData.map(o => ({
+        ...o,
+        profiles: profilesMap.get(o.user_id) || null
+      }));
+      setOffers(offersWithProfiles);
     }
   };
 
