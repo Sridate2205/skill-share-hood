@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, MapPin, User, DollarSign, Calendar, Tag } from 'lucide-react';
+import { ArrowLeft, MapPin, User, DollarSign, Calendar, Tag, Trash2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
 import { supabase } from '@/integrations/supabase/client';
@@ -99,6 +99,20 @@ const RequestDetail = () => {
     }
   };
 
+  const handleDelete = async () => {
+    const { error } = await supabase
+      .from('skill_requests')
+      .delete()
+      .eq('id', request.id);
+    
+    if (error) {
+      toast.error('Failed to delete request');
+    } else {
+      toast.success('Request deleted successfully');
+      navigate('/dashboard');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6">
@@ -161,9 +175,14 @@ const RequestDetail = () => {
               </div>
             </div>
 
-            {request.user_id !== user.id && (
+            {request.user_id !== user.id ? (
               <Button className="w-full" onClick={handleHelp}>
                 Offer to Help
+              </Button>
+            ) : (
+              <Button variant="destructive" className="w-full" onClick={handleDelete}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Request
               </Button>
             )}
           </CardContent>
