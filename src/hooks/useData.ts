@@ -35,6 +35,10 @@ interface Notification {
   message: string;
   read: boolean;
   created_at: string;
+  requester_id?: string | null;
+  related_post_id?: string | null;
+  related_post_type?: string | null;
+  status?: string | null;
 }
 
 export const useData = () => {
@@ -153,6 +157,53 @@ export const useData = () => {
     }
   };
 
+  const respondToRequest = async (notification: Notification, accepted: boolean) => {
+    // Update the original notification status
+    const { error: updateError } = await supabase
+      .from('notifications')
+      .update({ status: accepted ? 'accepted' : 'denied', read: true })
+      .eq('id', notification.id);
+
+    if (updateError) return { error: updateError };
+
+    // Fetch the post title for the response notification
+    let postTitle = 'your request';
+    if (notification.related_post_id && notification.related_post_type) {
+      const table = notification.related_post_type === 'request' ? 'skill_requests' : 'skill_offers';
+      const { data: postData } = await supabase
+        .from(table)
+        .select('title')
+        .eq('id', notification.related_post_id)
+        .maybeSingle();
+      if (postData) postTitle = postData.title;
+    }
+
+    // Send notification to the requester
+    if (notification.requester_id) {
+      const { error: notifyError } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: notification.requester_id,
+          type: accepted ? 'accepted' : 'denied',
+          title: accepted ? 'Request Accepted!' : 'Request Declined',
+          message: accepted 
+            ? `Your request for "${postTitle}" has been accepted!`
+            : `Your request for "${postTitle}" has been declined.`,
+          read: false,
+          status: accepted ? 'accepted' : 'denied',
+        });
+      
+      if (notifyError) return { error: notifyError };
+    }
+
+    // Update local state
+    setNotifications(prev => 
+      prev.map(n => n.id === notification.id ? { ...n, status: accepted ? 'accepted' : 'denied', read: true } : n)
+    );
+
+    return { error: null };
+  };
+
   const getUnreadCount = (userId: string) => {
     return notifications.filter(n => n.user_id === userId && !n.read).length;
   };
@@ -166,6 +217,7 @@ export const useData = () => {
     addOffer,
     addNotification,
     markNotificationRead,
+    respondToRequest,
     getUnreadCount,
     fetchNotifications,
     fetchRequests,
