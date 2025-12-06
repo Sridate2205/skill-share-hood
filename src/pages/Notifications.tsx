@@ -3,14 +3,15 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, CheckCircle, XCircle, Bell } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Bell, Check, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
+import { toast } from 'sonner';
 
 const Notifications = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { notifications, markNotificationRead, fetchNotifications } = useData();
+  const { notifications, markNotificationRead, respondToRequest, fetchNotifications } = useData();
 
   useEffect(() => {
     if (user) {
@@ -47,6 +48,36 @@ const Notifications = () => {
     await markNotificationRead(id);
   };
 
+  const handleAccept = async (notification: typeof notifications[0], e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { error } = await respondToRequest(notification, true);
+    if (error) {
+      toast.error('Failed to accept request');
+    } else {
+      toast.success('Request accepted! The user has been notified.');
+    }
+  };
+
+  const handleReject = async (notification: typeof notifications[0], e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { error } = await respondToRequest(notification, false);
+    if (error) {
+      toast.error('Failed to decline request');
+    } else {
+      toast.success('Request declined. The user has been notified.');
+    }
+  };
+
+  const getStatusBadge = (status: string | null | undefined) => {
+    if (status === 'accepted') {
+      return <Badge className="bg-green-500/20 text-green-600 border-green-500/30">Accepted</Badge>;
+    }
+    if (status === 'denied') {
+      return <Badge variant="destructive">Declined</Badge>;
+    }
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6">
@@ -68,16 +99,43 @@ const Notifications = () => {
                 <CardContent className="flex items-start gap-4 p-4">
                   {getIcon(notification.type)}
                   <div className="flex-1">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <h3 className="font-medium text-foreground">{notification.title}</h3>
-                      {!notification.read && (
-                        <Badge variant="secondary" className="text-xs">New</Badge>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(notification.status)}
+                        {!notification.read && (
+                          <Badge variant="secondary" className="text-xs">New</Badge>
+                        )}
+                      </div>
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
                     <p className="text-xs text-muted-foreground mt-2">
                       {new Date(notification.created_at).toLocaleDateString()}
                     </p>
+                    
+                    {/* Show accept/reject buttons for pending incoming requests */}
+                    {notification.type === 'new_request' && 
+                     notification.status === 'pending' && 
+                     notification.requester_id && (
+                      <div className="flex gap-2 mt-3">
+                        <Button 
+                          size="sm" 
+                          onClick={(e) => handleAccept(notification, e)}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <Check className="h-4 w-4 mr-1" />
+                          Accept
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          onClick={(e) => handleReject(notification, e)}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Decline
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

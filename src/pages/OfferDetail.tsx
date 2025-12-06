@@ -85,6 +85,10 @@ const OfferDetail = () => {
       title: 'New Booking Request',
       message: `${profile?.name || user.email} wants to book your skill: "${offer.title}"`,
       read: false,
+      requester_id: user.id,
+      related_post_id: offer.id,
+      related_post_type: 'offer',
+      status: 'pending',
     });
     
     if (error) {

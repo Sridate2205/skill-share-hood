@@ -20,6 +20,10 @@ export type Database = {
           id: string
           message: string
           read: boolean
+          related_post_id: string | null
+          related_post_type: string | null
+          requester_id: string | null
+          status: string | null
           title: string
           type: string
           user_id: string
@@ -29,6 +33,10 @@ export type Database = {
           id?: string
           message: string
           read?: boolean
+          related_post_id?: string | null
+          related_post_type?: string | null
+          requester_id?: string | null
+          status?: string | null
           title: string
           type: string
           user_id: string
@@ -38,11 +46,23 @@ export type Database = {
           id?: string
           message?: string
           read?: boolean
+          related_post_id?: string | null
+          related_post_type?: string | null
+          requester_id?: string | null
+          status?: string | null
           title?: string
           type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notifications_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       profiles: {
         Row: {

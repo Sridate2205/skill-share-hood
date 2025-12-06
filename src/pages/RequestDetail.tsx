@@ -85,6 +85,10 @@ const RequestDetail = () => {
       title: 'New Help Offer',
       message: `${profile?.name || user.email} wants to help with your request: "${request.title}"`,
       read: false,
+      requester_id: user.id,
+      related_post_id: request.id,
+      related_post_type: 'request',
+      status: 'pending',
     });
     
     if (error) {
