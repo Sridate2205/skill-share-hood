@@ -33,12 +33,21 @@ const RequestDetail = () => {
     const fetchRequest = async () => {
       const { data, error } = await supabase
         .from('skill_requests')
-        .select('*, profiles(name)')
+        .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
       
       if (!error && data) {
-        setRequest(data);
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('user_id', data.user_id)
+          .maybeSingle();
+        
+        setRequest({
+          ...data,
+          profiles: profileData || null
+        });
       }
       setLoading(false);
     };
