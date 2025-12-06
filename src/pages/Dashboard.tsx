@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/dashboard/Header';
 import { SearchBar } from '@/components/dashboard/SearchBar';
 import { RequestCard } from '@/components/dashboard/RequestCard';
@@ -9,8 +9,14 @@ import { Navigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
-  const { requests, offers, loading: dataLoading } = useData();
+  const { requests, offers, loading: dataLoading, fetchRequests, fetchOffers } = useData();
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Refetch data when dashboard mounts to get latest posts
+  useEffect(() => {
+    fetchRequests();
+    fetchOffers();
+  }, []);
 
   if (authLoading) {
     return (
