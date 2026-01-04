@@ -10,6 +10,9 @@ import Notifications from "./pages/Notifications";
 import RequestDetail from "./pages/RequestDetail";
 import OfferDetail from "./pages/OfferDetail";
 import NotFound from "./pages/NotFound";
+import Welcome from "./pages/Welcome";
+import About from "./pages/About";
+import Help from "./pages/Help";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +24,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/welcome" element={<Welcome />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/help" element={<Help />} />
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/request/:id" element={<RequestDetail />} />
