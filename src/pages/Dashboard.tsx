@@ -1,22 +1,32 @@
 import { useState, useEffect } from 'react';
-import { Header } from '@/components/dashboard/Header';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { Navbar } from '@/components/layout/Navbar';
 import { SearchBar } from '@/components/dashboard/SearchBar';
 import { RequestCard } from '@/components/dashboard/RequestCard';
 import { OfferCard } from '@/components/dashboard/OfferCard';
-import { useData } from '@/hooks/useData';
 import { useAuth } from '@/hooks/useAuth';
-import { Navigate } from 'react-router-dom';
+import { useData } from '@/hooks/useData';
 
 const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const { requests, offers, loading: dataLoading, fetchRequests, fetchOffers } = useData();
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
-  // Refetch data when dashboard mounts to get latest posts
   useEffect(() => {
     fetchRequests();
     fetchOffers();
   }, []);
+
+  // Check if new user and redirect to welcome page
+  useEffect(() => {
+    if (user && !authLoading) {
+      const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+      if (!hasSeenWelcome) {
+        navigate('/welcome');
+      }
+    }
+  }, [user, authLoading, navigate]);
 
   if (authLoading) {
     return (
@@ -42,7 +52,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Navbar />
       
       <main className="container mx-auto px-4 py-6">
         <div className="mb-6">

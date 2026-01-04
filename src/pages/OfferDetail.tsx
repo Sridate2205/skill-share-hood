@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, MapPin, User, Clock, Calendar, Tag, Trash2 } from 'lucide-react';
+import { MapPin, User, Clock, Calendar, Tag, Trash2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Navbar } from '@/components/layout/Navbar';
 
 interface OfferWithProfile {
   id: string;
@@ -115,11 +116,8 @@ const OfferDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container mx-auto px-4 py-6">
-        <Button variant="ghost" onClick={() => navigate('/dashboard')} className="mb-6">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
-        </Button>
 
         <Card className="max-w-2xl mx-auto border-border bg-card">
           <CardHeader>

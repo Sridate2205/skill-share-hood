@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, CheckCircle, XCircle, Bell, Check, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, XCircle, Bell, Check, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
 import { toast } from 'sonner';
+import { Navbar } from '@/components/layout/Navbar';
 
 const Notifications = () => {
   const navigate = useNavigate();
@@ -80,12 +81,8 @@ const Notifications = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container mx-auto px-4 py-6">
-        <Button variant="ghost" onClick={() => navigate('/dashboard')} className="mb-6">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
-        </Button>
-
         <h1 className="text-2xl font-bold text-foreground mb-6">Notification Centre</h1>
 
         <div className="space-y-4 max-w-2xl">

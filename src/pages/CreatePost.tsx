@@ -6,10 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
 import { toast } from 'sonner';
+import { Navbar } from '@/components/layout/Navbar';
 
 const CreatePost = () => {
   const navigate = useNavigate();
@@ -87,11 +87,8 @@ const CreatePost = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container mx-auto px-4 py-6">
-        <Button variant="ghost" onClick={() => navigate('/dashboard')} className="mb-6">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
-        </Button>
 
         <Card className="max-w-2xl mx-auto border-border bg-card">
           <CardHeader>
