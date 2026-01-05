@@ -13,6 +13,7 @@ import NotFound from "./pages/NotFound";
 import Welcome from "./pages/Welcome";
 import About from "./pages/About";
 import Help from "./pages/Help";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/request/:id" element={<RequestDetail />} />
           <Route path="/offer/:id" element={<OfferDetail />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
