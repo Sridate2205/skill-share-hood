@@ -101,7 +101,10 @@ export const Navbar = () => {
                 Post
               </Button>
 
-              <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate('/profile')}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                     {profile?.name?.charAt(0).toUpperCase() || <User className="h-4 w-4" />}
@@ -110,7 +113,7 @@ export const Navbar = () => {
                 <span className="text-sm text-muted-foreground hidden lg:block">
                   {profile?.name || user?.email}
                 </span>
-              </div>
+              </button>
 
               <Button variant="ghost" size="icon" onClick={handleLogout}>
                 <LogOut className="h-5 w-5" />
@@ -151,6 +154,18 @@ export const Navbar = () => {
               ))}
               
               <div className="border-t border-border pt-4 space-y-2">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                  onClick={() => {
+                    navigate('/profile');
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <User className="h-5 w-5" />
+                  Profile
+                </Button>
+
                 <Button
                   variant="outline"
                   className="w-full justify-start gap-2"
