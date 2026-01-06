@@ -3,11 +3,12 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, Bell, Check, X } from 'lucide-react';
+import { CheckCircle, XCircle, Bell, Check, X, Trash2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
 import { toast } from 'sonner';
 import { Navbar } from '@/components/layout/Navbar';
+import { supabase } from '@/integrations/supabase/client';
 
 const Notifications = () => {
   const navigate = useNavigate();
@@ -79,11 +80,46 @@ const Notifications = () => {
     return null;
   };
 
+  const readNotifications = userNotifications.filter(n => n.read);
+
+  const handleClearOldNotifications = async () => {
+    if (readNotifications.length === 0) {
+      toast.info('No old notifications to clear');
+      return;
+    }
+
+    const readIds = readNotifications.map(n => n.id);
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .in('id', readIds);
+
+    if (error) {
+      toast.error('Failed to clear notifications');
+    } else {
+      toast.success(`Cleared ${readIds.length} old notification(s)`);
+      fetchNotifications(user.id);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold text-foreground mb-6">Notification Centre</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-foreground">Notification Centre</h1>
+          {readNotifications.length > 0 && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleClearOldNotifications}
+              className="gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Clear Old ({readNotifications.length})
+            </Button>
+          )}
+        </div>
 
         <div className="space-y-4 max-w-2xl">
           {userNotifications.length > 0 ? (
